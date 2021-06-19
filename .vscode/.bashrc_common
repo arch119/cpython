@@ -1,0 +1,115 @@
+PS1="[\[\e[01;34m\]\u:\w\[\e[;00m\]]
+-+ "
+set -o vi
+
+alias lrt="ls -lrt"
+alias l='lrt'
+alias le='less'
+alias pss="ps aux | grep $USER | grep -v grep"
+alias pst="pstree -p -u $USER"
+alias h='history'
+alias rm="rm -i"
+alias mv="mv -i"
+alias lp="netstat -an | grep LISTEN"
+alias dev="cd ~/dev"
+alias webserver="python3 -m http.server"
+alias c="cd" 
+alias u="cd .."
+alias uu="cd ../.."
+alias uuu="cd ../../.."
+alias u4="cd ../../../.."
+alias u5="cd ../../../../.."
+
+#git releated
+alias gdt='git difftool'
+gc(){
+    if [ -z "$1" ]; then
+        git commit
+    else
+        git commit -m "$1"
+    fi
+}
+alias gca='git commit --amend'
+alias gdc='git diff --cached'
+alias gd='git diff'
+alias gf='git fetch'
+alias ga='git add'
+alias ga.='git add .'
+alias gac='git add . && git commit -m'
+alias gpl='git pull --rebase'
+alias gph='git push'
+alias gpf='git push --force-with-lease'
+alias gs='git status -s -b'
+alias gh='git history'
+alias gb='git branch'
+alias gba='git branch -a'
+alias gco='git checkout'
+alias gr='git checkout -- '
+alias gu='git reset HEAD'
+alias guc='git reset --soft HEAD^'
+alias grm='git rebase master'
+alias grc='git rebase --continue'
+alias g1='git last'
+
+gall()
+{
+#git add/commit and push
+    ga. && gc "$1" && gph
+}
+
+git-branch-name()
+{
+    local temp=$(git symbolic-ref HEAD 2>/dev/null)
+    echo ${temp##refs/heads/}
+}
+
+git-push-upstream()
+{
+    local branch_name=$(git-branch-name)
+    git push --set-upstream origin ${branch_name}
+}
+alias gpu='git-push-upstream'
+
+git-reset-origin()
+{
+    local branch_name=$(git-branch-name)
+    git reset --hard origin/${branch_name}
+}
+alias gro='git-reset-origin'
+
+git-squash()
+{
+    git rebase -i HEAD~$1
+}
+
+alias gsq='git-squash'
+
+git-del-branch()
+{
+	git branch -D $1 
+    if git show-ref remotes/origin/$1 ; then
+        echo "Remote branch exists..Deleting it as well...."
+        git push -d origin $1
+    fi
+}
+alias gdbr='git-del-branch'
+
+
+pcs(){
+    local base=$(git merge-base origin/master HEAD)
+    git diff $base | pycodestyle --diff
+}
+
+gl_fetch(){
+    for dir in *; do
+        (echo "cd $dir" &&cd $dir && git pull)
+    done
+}
+
+git-set-branch(){
+    local cur_branch=$(git-branch-name)
+    #gcb=git checkout branch i.e. checkout last branch
+    alias gcb="gco $cur_branch"
+}
+alias gsb='git-set-branch'
+alias gcm='gco master'
